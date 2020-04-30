@@ -171,3 +171,20 @@ end
 function Brick:renderParticles()
     love.graphics.draw(self.psystem, self.x + 16, self.y + 8)
 end
+
+function Brick:powerupCollides(paddle)
+    -- first, check to see if the left edge of either is farther to the right
+    -- than the right edge of the other
+    if self.powerup.x > paddle.x + paddle.width or paddle.x > self.powerup.x + self.powerup.width then
+        return false
+    end
+
+    -- then check to see if the bottom edge of either is higher than the top
+    -- edge of the other
+    if self.powerup.y > paddle.y + paddle.height or paddle.y > self.powerup.y + self.powerup.height then
+        return false
+    end 
+
+    -- if the above aren't true, they're overlapping
+    return true
+end
