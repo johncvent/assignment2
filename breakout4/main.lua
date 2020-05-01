@@ -67,9 +67,9 @@ function love.load()
         ['balls'] = GenerateQuadsBalls(gTextures['main']),
         ['bricks'] = GenerateQuadsBricks(gTextures['main']),
         ['hearts'] = GenerateQuads(gTextures['hearts'], 10, 9),
+        ['brickkey'] = GenerateQuadsBrickKey(gTextures['main']),
         ['powerups'] = GenerateQuadsPowerUps(gTextures['main'])
     }
-    
     -- initialize our virtual resolution, which will be rendered within our
     -- actual window no matter its dimensions
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
@@ -282,6 +282,9 @@ function renderHealth(health)
         love.graphics.draw(gTextures['hearts'], gFrames['hearts'][2], healthX, 4)
         healthX = healthX + 11
     end
+    --TEST OF BRICKKEY QUAD
+    --love.graphics.draw(gTextures['main'], gFrames['brickkey'][1], VIRTUAL_WIDTH-111, VIRTUAL_HEIGHT-100)
+
 end
 
 --[[
