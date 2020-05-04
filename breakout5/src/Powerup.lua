@@ -11,14 +11,19 @@
 
 Powerup = Class{}
 
-function Powerup:init(x,y)
+function Powerup:init(x,y,mstatus,lstatus)
     -- simple positional and dimensional variables
     self.width = 16
     self.height = 16
-    self.x=x
-    self.y=y
+    self.initx=x
+    self.inity=y
+    self.x=self.initx
+    self.y=self.inity
     self.quad=math.random(1,10)
     self.multiQuad=9
+    self.lockQuad=10
+    self.mstatus=mstatus
+    self.lstatus=lstatus
 
     -- these variables are for keeping track of our velocity on the
     -- Y axis, since the powerup simply falls
@@ -30,5 +35,9 @@ function Powerup:update(dt)
 end
 
 function Powerup:render()
-	love.graphics.draw(gTextures['main'], gFrames['powerups'][self.multiQuad], self.x, self.y)
+    if self.lstatus==1 then
+        love.graphics.draw(gTextures['main'], gFrames['powerups'][self.lockQuad], self.x, self.y)
+    else 
+        love.graphics.draw(gTextures['main'], gFrames['powerups'][self.multiQuad], self.x, self.y)
+    end
 end

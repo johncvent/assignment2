@@ -129,6 +129,12 @@ function PlayState:update(dt)
             self.mstatus=1
             brick.mstatus=0
         end    
+
+         --remove lock from brick
+        if brick.lstatus==1 and brick:powerupCollides(self.paddle) then
+            brick.lstatus=0
+        end
+
         -- only check collision if we're in play
         if (brick.inPlay and self.ball:collides(brick))
         then
@@ -162,7 +168,8 @@ function PlayState:update(dt)
                     score = self.score,
                     highScores = self.highScores,
                     ball = self.ball,
-                    recoverPoints = self.recoverPoints
+                    recoverPoints = self.recoverPoints,
+                    paddleTarget = self.paddleTarget
                 })
             end
 
@@ -246,7 +253,8 @@ function PlayState:update(dt)
                     score = self.score,
                     highScores = self.highScores,
                     ball = self.ball,
-                    recoverPoints = self.recoverPoints
+                    recoverPoints = self.recoverPoints,
+                    paddleTarget = self.paddleTarget
                 })
             end
 

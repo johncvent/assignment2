@@ -96,7 +96,10 @@ function LevelMaker.createMap(level)
                 -- y-coordinate
                 y * 16,                  -- just use y * 16, since we need top padding anyway
                 
-                --powerup (1 for true, 0 for false)
+                --multiball (1 for true, 0 for false)
+                0,
+
+                --locked brick (1 for true, 0 for false)
                 0
             )
 
@@ -131,8 +134,14 @@ function LevelMaker.createMap(level)
         count = count + 1 
     end
 
-    rcount = math.random(count)
-    bricks[rcount].mstatus = 1 
+    local mcount = math.random(count)
+    bricks[mcount].mstatus = 1 
+
+    local lcount = math.random(count)
+    while lcount == mcount do
+        lcount = math.random(count)
+    end
+    bricks[lcount].lstatus = 1   
 
     -- in the event we didn't generate any bricks, try again
     if #bricks == 0 then

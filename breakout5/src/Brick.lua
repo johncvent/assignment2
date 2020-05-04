@@ -50,7 +50,7 @@ paletteColors = {
     }
 }
 
-function Brick:init(x, y, mstatus)
+function Brick:init(x, y, mstatus, lstatus)
     -- used for coloring and score calculation
     self.tier = 0
     self.color = 1
@@ -82,9 +82,12 @@ function Brick:init(x, y, mstatus)
 
     -- status show whether multiball should be active (0 not active, 1 active)
     self.mstatus = mstatus
+
+    -- status show whether brick should be "locked"
+    self.lstatus =lstatus
     
     -- assign a powerup to a brick instance 
-    self.powerup = Powerup(self.x, self.y)
+    self.powerup = Powerup(self.x, self.y,self.mstatus, self.lstatus)
 end
 
 --[[
@@ -92,50 +95,54 @@ end
     changing its color otherwise.
 ]]
 function Brick:hit()
+    if self.lstatus == 1 then
+        self.hitCount = self.hitCount + 1
+    else
     -- set the particle system to interpolate between two colors; in this case, we give
     -- it our self.color but with varying alpha; brighter for higher tiers, fading to 0
     -- over the particle's lifetime (the second color)
-    self.psystem:setColors(
-        paletteColors[self.color].r,
-        paletteColors[self.color].g,
-        paletteColors[self.color].b,
-        55 * (self.tier + 1),
-        paletteColors[self.color].r,
-        paletteColors[self.color].g,
-        paletteColors[self.color].b,
-        0
-    )
-    self.psystem:emit(64)
+        self.psystem:setColors(
+            paletteColors[self.color].r,
+            paletteColors[self.color].g,
+            paletteColors[self.color].b,
+            55 * (self.tier + 1),
+            paletteColors[self.color].r,
+            paletteColors[self.color].g,
+            paletteColors[self.color].b,
+            0
+        )
+        self.psystem:emit(64)
 
-    -- sound on hit
-    gSounds['brick-hit-2']:stop()
-    gSounds['brick-hit-2']:play()
+        -- sound on hit
+        gSounds['brick-hit-2']:stop()
+        gSounds['brick-hit-2']:play()
 
-    --increment hit count
-    self.hitCount = self.hitCount + 1
+        --increment hit count
+        self.hitCount = self.hitCount + 1
 
-    -- if we're at a higher tier than the base, we need to go down a tier
-    -- if we're already at the lowest color, else just go down a color
-    if self.tier > 0 then
-        if self.color == 1 then
-            self.tier = self.tier - 1
-            self.color = 5
+        -- if we're at a higher tier than the base, we need to go down a tier
+        -- if we're already at the lowest color, else just go down a color
+        if self.tier > 0 then
+            if self.color == 1 then
+                self.tier = self.tier - 1
+                self.color = 5
+            else
+                self.color = self.color - 1
+            end
         else
-            self.color = self.color - 1
+            -- if we're in the first tier and the base color, remove brick from play
+            if self.color == 1 then
+                self.inPlay = false
+            else
+                self.color = self.color - 1
+            end
         end
-    else
-        -- if we're in the first tier and the base color, remove brick from play
-        if self.color == 1 then
-            self.inPlay = false
-        else
-            self.color = self.color - 1
-        end
-    end
 
-    -- play a second layer sound if the brick is destroyed
-    if not self.inPlay then
-        gSounds['brick-hit-1']:stop()
-        gSounds['brick-hit-1']:play()
+        -- play a second layer sound if the brick is destroyed
+        if not self.inPlay then
+            gSounds['brick-hit-1']:stop()
+            gSounds['brick-hit-1']:play()
+        end
     end
 end
 
@@ -144,22 +151,41 @@ function Brick:update(dt)
 
     --begin dropping powerup when multiball status is enabled
     --and brick is hit by a ball
-    if self.hitCount>=1 and self.mstatus == 1 then
+    if (self.hitCount>=1 and self.mstatus == 1) then
         self.powerup:update(dt)
+    end
+
+    if self.lstatus == 1 then
+        if self.powerup.y>VIRTUAL_HEIGHT then
+            self.powerup.y=self.powerup.inity
+            self.hitCount=0
+        end
+        if self.hitCount>=1 then
+            self.powerup:update(dt)
+        end
     end
 end
 
 function Brick:render()
-    if self.inPlay then
+    if self.inPlay then  
         love.graphics.draw(gTextures['main'], 
             -- multiply color by 4 (-1) to get our color offset, then add tier to that
             -- to draw the correct tier and color brick onto the screen
             gFrames['bricks'][1 + ((self.color - 1) * 4) + self.tier],
             self.x, self.y)
+        if self.lstatus == 1 then
+            love.graphics.draw(gTextures['main'], gFrames['brickkey'][1], self.x, self.y)
+        end  
     end
     
     --renders powerup only if multiball status is enabled
     if self.mstatus == 1 then
+        self.powerup.mstatus = 1
+        self.powerup:render()
+    end
+
+    if self.lstatus == 1 then
+        self.powerup.lstatus = 1
         self.powerup:render()
     end
 end
