@@ -29,7 +29,7 @@ function PlayState:enter(params)
     self.ball = params.ball
     self.level = params.level
 
-    self.recoverPoints = 5000
+    self.recoverPoints = params.recoverPoints
 
     -- give ball random starting velocity
     self.ball.dx = math.random(-200, 200)
@@ -58,8 +58,12 @@ function PlayState:update(dt)
         --INCREMENT PADDLE SIZE WHEN REACH TARGET SCORE
         if self.paddle.size + 1 >= 4 then 
             self.paddle.size = 4
+            gSounds['recover']:stop()
+            gSounds['recover']:play()
         else
             self.paddle.size = self.paddle.size + 1
+            gSounds['recover']:stop()
+            gSounds['recover']:play()
         end
         self.paddleTarget = self.paddleTarget * 2
     end
@@ -159,6 +163,7 @@ function PlayState:update(dt)
                 self.recoverPoints = math.min(100000, self.recoverPoints * 2)
 
                 -- play recover sound effect
+                gSounds['recover']:stop()
                 gSounds['recover']:play()
             end
 
